@@ -1,5 +1,5 @@
 // pages/api/trending-movies.ts
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
@@ -7,14 +7,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const response = await fetch(
-      `https://monim.pythonanywhere.com/api/movies/trending/`
-    );
+    const response = await fetch("https://monim.pythonanywhere.com/api/movies/trending/");
 
     if (!response.ok) {
       const err = await response.text();
       console.error("Backend response error:", err);
-      return res.status(500).json({ error: "Failed to fetch trending movies" });
+      return res.status(response.status).json({ error: "Failed to fetch trending movies" });
     }
 
     const data = await response.json();

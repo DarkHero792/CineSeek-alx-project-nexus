@@ -12,14 +12,16 @@ interface Movie {
 const Home: React.FC = () => {
   const router = useRouter();
   const [trending, setTrending] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://monim.pythonanywhere.com/api/movies/trending/")
+    fetch("/api/trending-movies")
       .then((res) => res.json())
       .then((data) => {
         setTrending(data);
       })
-      .catch((err) => console.error("Failed to fetch trending movies", err));
+      .catch((err) => console.error("Failed to fetch trending movies", err))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -52,8 +54,10 @@ const Home: React.FC = () => {
         <h2 className="text-3xl md:text-5xl font-semibold mb-8 text-center">
           Trending Movies
         </h2>
-        {trending.length === 0 ? (
+        {loading ? (
           <p className="text-gray-400 text-center">Loading trending movies...</p>
+        ) : trending.length === 0 ? (
+          <p className="text-gray-400 text-center">No trending movies found.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {trending.map((movie) => (
