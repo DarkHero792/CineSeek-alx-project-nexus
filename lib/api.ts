@@ -1,22 +1,21 @@
 // lib/api.ts
-export const fetchTrendingMovies = async () => {
-  // Simulate API delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: 1,
-          title: 'Inception',
-          poster: '/images/inception.jpg',
-          rating: 8.8,
-        },
-        {
-          id: 2,
-          title: 'Interstellar',
-          poster: '/images/interstellar.jpg',
-          rating: 8.6,
-        },
-      ]);
-    }, 1000);
-  });
-};
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+export async function apiFetch(endpoint: string, options: RequestInit = {}) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || "API request failed");
+  }
+
+  return res.json();
+}
