@@ -1,52 +1,49 @@
 import { useEffect, useState } from "react";
 import MovieCard from "@/components/commons/MovieCard";
+import Button from "@/components/commons/Button";
 
 interface Movie {
   id: number;
   title: string;
   poster_path: string | null;
-  release_year?: string;
+  release_date?: string;
 }
 
 const MoviesPage: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+
+  const fetchMovies = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/trending-movies?page=${page}`);
+      const data = await res.json();
+      setMovies(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch movies", err);
+      setMovies([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const res = await fetch("/api/fetch-movies", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ year: 2024, page: 1 }) // adjust as needed
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch movies");
-        }
-
-        const data = await res.json();
-        setMovies(data.results || data); // backend may return either array or { results: [] }
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMovies();
-  }, []);
+  }, [page]);
 
   return (
-    <div className="bg-[#171D22] text-white min-h-screen p-8">
-      <h1 className="text-4xl font-bold mb-8">Movies</h1>
+    <div className="bg-[#171D22] text-white min-h-screen p-8 flex flex-col">
+      <h1 className="text-4xl font-bold mb-8 text-center">
+        Movies (Page {page})
+      </h1>
 
       {loading ? (
-        <p>Loading movies...</p>
+        <p className="text-center">Loading movies...</p>
       ) : movies.length === 0 ? (
-        <p>No movies found.</p>
+        <p className="text-center">No movies found.</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 flex-grow">
           {movies.map((movie) => (
             <MovieCard
               key={movie.id}
@@ -57,11 +54,23 @@ const MoviesPage: React.FC = () => {
                   ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                   : "/placeholder.jpg"
               }
-              releaseYear={movie.release_year || ""}
+              releaseYear={movie.release_date?.split("-")[0] || ""}
             />
           ))}
         </div>
       )}
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center gap-6 mt-8">
+        <Button
+          title="Previous"
+          action={() => setPage((p) => Math.max(1, p - 1))}
+        />
+        <Button
+          title="Next"
+          action={() => setPage((p) => p + 1)}
+        />
+      </div>
     </div>
   );
 };
