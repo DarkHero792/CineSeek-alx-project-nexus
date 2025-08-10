@@ -7,6 +7,7 @@ interface Movie {
   id: number;
   title: string;
   poster_path: string | null;
+  release_date?: string;
 }
 
 const Home: React.FC = () => {
@@ -18,9 +19,17 @@ const Home: React.FC = () => {
     fetch("/api/trending-movies")
       .then((res) => res.json())
       .then((data) => {
-        setTrending(data);
+        if (Array.isArray(data)) {
+          setTrending(data);
+        } else {
+          console.warn("Unexpected trending movies data format:", data);
+          setTrending([]);
+        }
       })
-      .catch((err) => console.error("Failed to fetch trending movies", err))
+      .catch((err) => {
+        console.error("Failed to fetch trending movies", err);
+        setTrending([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -70,7 +79,9 @@ const Home: React.FC = () => {
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                     : "/placeholder.jpg"
                 }
-                releaseYear={""} // If backend has year, pass it here
+                releaseYear={
+                  movie.release_date ? movie.release_date.split("-")[0] : ""
+                }
               />
             ))}
           </div>
