@@ -89,10 +89,18 @@ cd movie-recommendation-app
 
 # Install dependencies
 npm install
+```
 
-# Create environment file
-cp .env.example .env.local
-# Add your API keys in .env.local
+## 🔑 Environment Variables
 
+```bash
+# Create a .env.local file with:
+NEXT_PUBLIC_API_BASE_URL=https://your-api-url.com
+NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
+```
+
+## 📤 Deployment
+
+# Deploy easily with Vercel or Netlify.
 # Run development server
 npm run dev
