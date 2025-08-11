@@ -96,7 +96,7 @@ const Home: React.FC = () => {
           Sign up today to get access to the latest movies, exclusive content,
           and personalized movie recommendations.
         </p>
-        
+        <Button title="Get Started" action={() => router.push("/signup")} />
       </section>
     </div>
   );
